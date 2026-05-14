@@ -4,7 +4,7 @@ from google.oauth2 import service_account
 
 app = FastAPI()
 
-# 🔐 Conexión segura a Firebase (Render compatible)
+# 🔐 conexión Firebase
 try:
     credentials = service_account.Credentials.from_service_account_file(
         "firebase-key.json"
@@ -14,12 +14,10 @@ except Exception as e:
     db = None
     error_message = str(e)
 
-# ✅ Endpoint base (para verificar que todo está vivo)
 @app.get("/")
 def home():
     return {"status": "ok"}
 
-# ✅ Endpoint PRODUCTION
 @app.get("/production")
 def get_production():
     if db is None:
@@ -27,26 +25,10 @@ def get_production():
 
     try:
         docs = db.collection("production").stream()
-        data = []
-
-        for doc in docs:
-            d = doc.to_dict()
-
-            # 🔧 Convertir timestamp a string
-            if "timestamp" in d:
-                try:
-                    d["timestamp"] = d["timestamp"].isoformat()
-                except:
-                    pass
-
-            data.append(d)
-
-        return data
-
+        return [doc.to_dict() for doc in docs]
     except Exception as e:
         return {"error": str(e)}
 
-# ✅ Endpoint PREPARATION
 @app.get("/preparation")
 def get_preparation():
     if db is None:
@@ -54,21 +36,6 @@ def get_preparation():
 
     try:
         docs = db.collection("preparation").stream()
-        data = []
-
-        for doc in docs:
-            d = doc.to_dict()
-
-            # 🔧 Convertir timestamp a string
-            if "timestamp" in d:
-                try:
-                    d["timestamp"] = d["timestamp"].isoformat()
-                except:
-                    pass
-
-            data.append(d)
-
-        return data
-
+        return [doc.to_dict() for doc in docs]
     except Exception as e:
         return {"error": str(e)}
