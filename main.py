@@ -1,12 +1,15 @@
 from fastapi import FastAPI
 from google.cloud import firestore
-import os
-
-os.environ["GOOGLE_APPLICATION_CREDENTIALS"] = "firebase-key.json"
+from google.oauth2 import service_account
 
 app = FastAPI()
 
-db = firestore.Client()
+# 🔐 conexión correcta a Firebase
+credentials = service_account.Credentials.from_service_account_file(
+    "firebase-key.json"
+)
+
+db = firestore.Client(credentials=credentials)
 
 @app.get("/")
 def home():
